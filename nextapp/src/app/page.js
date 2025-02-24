@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import Head from 'next/head';
 import { dummyNews, categories } from '../utils/data';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -80,36 +81,52 @@ export default function Home() {
   }, [category, subCategory, userLocation]);
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
-      <Hero 
-        categories={categories} 
-        category={category} 
-        setCategory={setCategory} 
-        setSubCategory={setSubCategory} 
-      />
-      <SubcategoryFilter 
-        category={category} 
-        subCategory={subCategory} 
-        setSubCategory={setSubCategory} 
-        categories={categories} 
-      />
-      
-      <section className="container mx-auto px-4 py-8">
-        {isLoading ? (
-          <div className="flex justify-center items-center min-h-[300px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {news.map((article, index) => (
-              <NewsCard key={index} article={article} />
-            ))}
-          </div>
-        )}
-      </section>
+    <>
+      <Head>
+        <title>News Feed - Latest News & Updates | Flipr News</title>
+        <meta name="description" content="Stay updated with the latest news across various categories. Get personalized news based on your location and interests." />
+        <meta name="keywords" content="news, latest news, breaking news, local news" />
+        <meta property="og:title" content="News Feed - Latest News & Updates | Flipr News" />
+        <meta property="og:description" content="Stay updated with the latest news across various categories. Get personalized news based on your location and interests." />
+        <link rel="canonical" href="/" />
+      </Head>
 
-      <Footer />
-    </main>
+      <main className="min-h-screen bg-gray-50" role="main">
+        <header role="banner">
+          <Navbar />
+          <Hero 
+            categories={categories} 
+            category={category} 
+            setCategory={setCategory} 
+            setSubCategory={setSubCategory} 
+          />
+        </header>
+
+        <nav role="navigation" aria-label="Category filter">
+          <SubcategoryFilter 
+            category={category} 
+            subCategory={subCategory} 
+            setSubCategory={setSubCategory} 
+            categories={categories} 
+          />
+        </nav>
+        
+        <section className="container mx-auto px-4 py-8">
+          {isLoading ? (
+            <div className="flex justify-center items-center min-h-[300px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {news.map((article, index) => (
+                <NewsCard key={index} article={article} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <Footer />
+      </main>
+    </>
   );
 }
