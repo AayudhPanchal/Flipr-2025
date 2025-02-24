@@ -1,0 +1,14 @@
+{
+  "crons": [
+    {
+      "path": "/api/blog/schedule",
+      "schedule": "*/1 * * * *"
+    }
+  ],
+  "functions": {
+    "/api/blog/schedule": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+}
