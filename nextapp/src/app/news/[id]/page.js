@@ -360,7 +360,7 @@ export default function NewsArticle() {
       </div>
 
       {/* Add before the Footer component */}
-      <div className="max-w-4xl mx-auto px-4 mb-8">
+      {/* <div className="max-w-4xl mx-auto px-4 mb-8">
         {!postSuccess ? (
           <button
             onClick={handleWordPressPost}
@@ -395,7 +395,7 @@ export default function NewsArticle() {
             <p className="text-red-700">Error: {postError}</p>
           </div>
         )}
-      </div>
+      </div> */}
 
       <Footer />
     </main>
