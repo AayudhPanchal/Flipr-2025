@@ -1,27 +1,44 @@
-import { Geist, Geist_Mono } from "next/font/google";
+'use client'
+import { useEffect } from 'react';
+import Script from "next/script";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata = {
-  title: "Anveshak",
-  description: "Built for Flipr",
-};
+import Navbar from './components/Navbar';
 
 export default function RootLayout({ children }) {
+
+  useEffect(() => {
+    const addGoogleTranslateScript = () => {
+      if (!window.googleTranslateElementInit) {
+        window.googleTranslateElementInit = () => {
+          new window.google.translate.TranslateElement(
+            { pageLanguage: "en" },
+            "google_translate_element"
+          );
+        };
+
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.async = true;
+        script.src =
+          "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        document.head.appendChild(script);
+      }
+    };
+
+    addGoogleTranslateScript();
+  }, []);
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <head>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <Script
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          strategy="beforeInteractive"
+        />
+      </head>
+      <body className="antialiased">
+        <div id="google_translate_element" style={{ display: "none" }}></div>
         {children}
       </body>
     </html>

@@ -1,18 +1,42 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { FaLanguage, FaChevronDown, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('');
+  const [isTranslateOpen, setIsTranslateOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  
+  const translateRef = useRef(null);
+
+  const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'hi', name: 'हिंदी' },
+    { code: 'bn', name: 'বাংলা' },
+    { code: 'te', name: 'తెలుగు' },
+    { code: 'ta', name: 'தமிழ்' },
+    { code: 'gu', name: 'ગુજરાતી' },
+    { code: 'kn', name: 'ಕನ್ನಡ' },
+    { code: 'ml', name: 'മലയാളം' },
+    { code: 'pa', name: 'ਪੰਜਾਬੀ' }
+  ];
+
+  const ITEMS_PER_PAGE = 6;
+  const totalPages = Math.ceil(languages.length / ITEMS_PER_PAGE);
+
+  const getCurrentPageItems = () => {
+    const start = currentPage * ITEMS_PER_PAGE;
+    return languages.slice(start, start + ITEMS_PER_PAGE);
+  };
 
   useEffect(() => {
     const email = localStorage.getItem('userEmail');
     if (email) {
       setIsLoggedIn(true);
-      // Fetch user details
       fetch(`/api/user/profile?email=${email}`)
         .then(res => res.json())
         .then(data => {
@@ -25,6 +49,26 @@ export default function Navbar() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (translateRef.current && !translateRef.current.contains(event.target)) {
+        setIsTranslateOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLanguageChange = (langCode) => {
+    const select = document.querySelector('.goog-te-combo');
+    if (select) {
+      select.value = langCode;
+      select.dispatchEvent(new Event('change'));
+    }
+    setIsTranslateOpen(false);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('userEmail');
     setIsLoggedIn(false);
@@ -34,7 +78,6 @@ export default function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // First remove any existing highlights
       const oldHighlights = document.querySelectorAll('.search-highlight');
       oldHighlights.forEach(highlight => {
         const parent = highlight.parentNode;
@@ -42,7 +85,6 @@ export default function Navbar() {
         parent.normalize();
       });
 
-      // Create a text node of the search query
       const searchText = searchQuery.toLowerCase();
       const walker = document.createTreeWalker(
         document.body,
@@ -100,7 +142,6 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-4">
             <form onSubmit={handleSearch} className="flex items-center">
               <div className="relative">
@@ -129,6 +170,57 @@ export default function Navbar() {
                 </svg>
                 Blog
               </Link>
+
+              {/* Language Selector */}
+              <div className="relative" ref={translateRef}>
+                <button
+                  onClick={() => setIsTranslateOpen(!isTranslateOpen)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  <FaLanguage className="w-5 h-5" />
+                  <span>Translate</span>
+                  <FaChevronDown className={`w-4 h-4 transform transition-transform ${isTranslateOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isTranslateOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
+                    <div className="p-2 grid grid-cols-2 gap-1">
+                      {getCurrentPageItems().map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => handleLanguageChange(lang.code)}
+                          className="text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md w-full"
+                        >
+                          {lang.name}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {totalPages > 1 && (
+                      <div className="border-t border-gray-100 p-2 flex justify-between items-center">
+                        <button
+                          onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                          disabled={currentPage === 0}
+                          className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                        >
+                          <FaChevronLeft />
+                        </button>
+                        <span className="text-sm text-gray-500">
+                          {currentPage + 1} / {totalPages}
+                        </span>
+                        <button
+                          onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                          disabled={currentPage === totalPages - 1}
+                          className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                        >
+                          <FaChevronRight />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {isLoggedIn ? (
                 <>
                   <span className="text-sm text-gray-600">{userName}</span>
@@ -167,7 +259,6 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 rounded-lg hover:bg-gray-100"
@@ -182,7 +273,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-gray-100">
             <div className="py-4 space-y-4">
@@ -213,6 +303,59 @@ export default function Navbar() {
                 </svg>
                 Blog
               </Link>
+
+              {/* Mobile Language Selector */}
+              <div className="px-4 border-t border-gray-200 pt-4">
+                <button
+                  onClick={() => setIsTranslateOpen(!isTranslateOpen)}
+                  className="flex items-center w-full py-2 text-sm font-medium text-gray-700 hover:text-blue-600"
+                >
+                  <FaLanguage className="w-5 h-5 mr-3" />
+                  <span>Select Language</span>
+                  <FaChevronDown className={`ml-auto w-4 h-4 transform transition-transform ${isTranslateOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isTranslateOpen && (
+                  <div className="mt-2">
+                    <div className="grid grid-cols-2 gap-1">
+                      {getCurrentPageItems().map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => {
+                            handleLanguageChange(lang.code);
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md"
+                        >
+                          {lang.name}
+                        </button>
+                      ))}
+                    </div>
+
+                    {totalPages > 1 && (
+                      <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100">
+                        <button
+                          onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                          disabled={currentPage === 0}
+                          className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                        >
+                          <FaChevronLeft />
+                        </button>
+                        <span className="text-sm text-gray-500">
+                          {currentPage + 1} / {totalPages}
+                        </span>
+                        <button
+                          onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                          disabled={currentPage === totalPages - 1}
+                          className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                        >
+                          <FaChevronRight />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <div className="px-4 space-y-2">
                 {isLoggedIn ? (

@@ -305,7 +305,7 @@ export default function NewsArticle({ params }) {
                     </div>
                   </div>
                   <p className="text-center text-sm text-blue-600 mt-2 font-medium">
-                    Generating summary... {Math.round(progress)}%
+                    Generating summary...
                   </p>
                 </div>
               )}

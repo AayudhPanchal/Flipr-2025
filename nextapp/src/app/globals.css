@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide the Google Translate banner */
+body > .skiptranslate {
+  display: none !important;
+}
+
+/* Ensure the translation dropdown remains hidden */
+#google_translate_element {
+  display: none !important;
+}
+
+/* Prevent layout shift caused by Google Translate */
+.goog-te-banner-frame {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0px !important;
+}
+
+/* Hide the inline Google Translate toolbar */
+.goog-te-gadget {
+  display: none !important;
+}
+
+
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
